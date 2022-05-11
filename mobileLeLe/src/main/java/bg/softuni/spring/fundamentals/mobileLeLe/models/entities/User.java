@@ -1,9 +1,9 @@
 package bg.softuni.spring.fundamentals.mobileLeLe.models.entities;
 
-import bg.softuni.spring.fundamentals.mobileLeLe.models.entities.enums.Role;
-
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -13,7 +13,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "user_name", nullable = false, unique = true)
+    @Column(name = "username", nullable = false, unique = true)
     private String userName;
 
     @Column(nullable = false, unique = true)
@@ -28,10 +28,6 @@ public class User {
     @Column(name = "is_active")
     private boolean isActive;
 
-    @Enumerated(EnumType.ORDINAL)
-    @Column(nullable = false)
-    private Role role;
-
     @Column(name = "image_url")
     private String imageUrl;
 
@@ -41,18 +37,19 @@ public class User {
     @Column
     private LocalDateTime modified;
 
-    @OneToOne
-    private UserRole userRole;
+    @ManyToMany()
+    private List<UserRole> userRole;
 
     public User() {
+        this.userRole = new ArrayList<>();
     }
 
-    public User(String userName, String password, String firstName, String lastName, Role role, LocalDateTime created) {
+    public User(String userName, String password, String firstName, String lastName, LocalDateTime created) {
+        this();
         this.userName = userName;
         this.password = password;
         this.firstName = firstName;
         this.lastName = lastName;
-        this.role = role;
         this.created = created;
     }
 
@@ -104,14 +101,6 @@ public class User {
         isActive = active;
     }
 
-    public Role getRole() {
-        return role;
-    }
-
-    public void setRole(Role role) {
-        this.role = role;
-    }
-
     public String getImageUrl() {
         return imageUrl;
     }
@@ -136,11 +125,11 @@ public class User {
         this.modified = modified;
     }
 
-    public UserRole getUserRole() {
+    public List<UserRole> getUserRole() {
         return userRole;
     }
 
-    public void setUserRole(UserRole userRole) {
+    public void setUserRole(List<UserRole> userRole) {
         this.userRole = userRole;
     }
 }

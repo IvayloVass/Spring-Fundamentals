@@ -2,9 +2,11 @@ package bg.softuni.spring.fundamentals.mobileLeLe;
 
 import bg.softuni.spring.fundamentals.mobileLeLe.models.entities.Brand;
 import bg.softuni.spring.fundamentals.mobileLeLe.models.entities.Model;
+import bg.softuni.spring.fundamentals.mobileLeLe.models.entities.User;
 import bg.softuni.spring.fundamentals.mobileLeLe.models.entities.enums.Category;
 import bg.softuni.spring.fundamentals.mobileLeLe.repositories.BrandRepository;
 import bg.softuni.spring.fundamentals.mobileLeLe.repositories.ModelRepository;
+import bg.softuni.spring.fundamentals.mobileLeLe.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -16,16 +18,29 @@ public class DataInitializer implements CommandLineRunner {
 
     private final BrandRepository brandRepository;
     private final ModelRepository modelRepository;
+    private final UserRepository userRepository;
 
     @Autowired
-    public DataInitializer(BrandRepository brandRepository, ModelRepository modelRepository) {
+    public DataInitializer(BrandRepository brandRepository, ModelRepository modelRepository, UserRepository userRepository) {
         this.brandRepository = brandRepository;
         this.modelRepository = modelRepository;
+        this.userRepository = userRepository;
     }
 
     @Override
     public void run(String... args) {
+        persistBrandAndModel();
+        persistUser();
 
+    }
+
+    private void persistUser() {
+        User mitak = new User("super@duper", "secretPass", "Mitak", "Petrov", LocalDateTime.now());
+        mitak.setActive(true);
+        userRepository.save(mitak);
+    }
+
+    private void persistBrandAndModel() {
         if (brandRepository.count() == 0 & modelRepository.count() == 0) {
             Brand mazda = new Brand("mazda", LocalDateTime.now());
             Model cx30 = new Model("cx-30", Category.CAR, 2010, LocalDateTime.now());
@@ -37,6 +52,5 @@ public class DataInitializer implements CommandLineRunner {
             modelRepository.save(mx5);
 
         }
-
     }
 }
