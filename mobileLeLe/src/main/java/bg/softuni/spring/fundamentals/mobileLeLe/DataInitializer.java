@@ -9,6 +9,7 @@ import bg.softuni.spring.fundamentals.mobileLeLe.repositories.ModelRepository;
 import bg.softuni.spring.fundamentals.mobileLeLe.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -19,12 +20,14 @@ public class DataInitializer implements CommandLineRunner {
     private final BrandRepository brandRepository;
     private final ModelRepository modelRepository;
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public DataInitializer(BrandRepository brandRepository, ModelRepository modelRepository, UserRepository userRepository) {
+    public DataInitializer(BrandRepository brandRepository, ModelRepository modelRepository, UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.brandRepository = brandRepository;
         this.modelRepository = modelRepository;
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -35,9 +38,11 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private void persistUser() {
-        User mitak = new User("super@duper", "secretPass", "Mitak", "Petrov", LocalDateTime.now());
-        mitak.setActive(true);
-        userRepository.save(mitak);
+        if (userRepository.count() == 0) {
+            User mitak = new User("super@duper", passwordEncoder.encode("secretPass"), "Mitak", "Petrov", LocalDateTime.now());
+            mitak.setActive(true);
+            userRepository.save(mitak);
+        }
     }
 
     private void persistBrandAndModel() {

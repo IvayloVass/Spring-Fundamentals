@@ -6,6 +6,9 @@ public class UserLoginDto {
 
     private String password;
 
+    public UserLoginDto() {
+    }
+
     public void setUsername(String username) {
         this.username = username;
     }
