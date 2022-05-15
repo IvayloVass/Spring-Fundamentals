@@ -9,14 +9,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
     private final CurrentUser currentUser;
+
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
     public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, CurrentUser currentUser) {
@@ -49,4 +51,18 @@ public class UserServiceImpl implements UserService {
     public void logout() {
         currentUser.clear();
     }
+
+    @Override
+    public void persistUser() {
+        if (userRepository.count() == 0) {
+            User mitak = new User("super@duper", passwordEncoder.encode("secretPass"), "Mitak", "Petrov", LocalDateTime.now());
+            User risto = new User("Risto", passwordEncoder.encode("12345"), "Risto", "Motoristo", LocalDateTime.now());
+            mitak.setActive(true);
+            risto.setActive(true);
+            userRepository.save(mitak);
+            userRepository.save(risto);
+
+        }
+    }
+
 }

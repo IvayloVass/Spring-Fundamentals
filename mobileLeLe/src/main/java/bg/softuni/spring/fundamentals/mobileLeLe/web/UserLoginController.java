@@ -1,14 +1,16 @@
 package bg.softuni.spring.fundamentals.mobileLeLe.web;
 
-import bg.softuni.spring.fundamentals.mobileLeLe.models.binding.UserLoginBindingDto;
 import bg.softuni.spring.fundamentals.mobileLeLe.models.dtos.UserLoginDto;
 import bg.softuni.spring.fundamentals.mobileLeLe.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
+@RequestMapping("/users")
 public class UserLoginController {
 
     private final UserService userService;
@@ -18,18 +20,18 @@ public class UserLoginController {
         this.userService = userService;
     }
 
-    @GetMapping("/users/login")
+    @GetMapping("/login")
     public String login() {
         return "auth-login";
     }
 
-    @PostMapping("users/login")
-    public String submitLogin(UserLoginBindingDto userLoginBindingDto) {
+    @PostMapping("/login")
+    public String submitLogin(@RequestParam String username, String password) {
 
         UserLoginDto userLoginDto = new UserLoginDto();
-        userLoginDto.setUsername(userLoginBindingDto.getUsername());
+        userLoginDto.setUsername(username);
         //FixMe
-        userLoginDto.setPassword(userLoginBindingDto.getRowPassword());
+        userLoginDto.setPassword(password);
         boolean loginSuccessful = userService.login(userLoginDto);
 
         if (loginSuccessful) {
