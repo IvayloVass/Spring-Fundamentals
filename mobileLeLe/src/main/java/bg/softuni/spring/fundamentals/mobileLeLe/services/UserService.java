@@ -9,5 +9,5 @@ public interface UserService {
 
     void logout();
 
-    void persistUser();
+    void persistUserAndRole();
 }

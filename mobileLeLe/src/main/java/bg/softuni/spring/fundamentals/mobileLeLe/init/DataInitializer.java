@@ -24,7 +24,7 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        userService.persistUser();
+        userService.persistUserAndRole();
         brandService.persistBrand();
         modelService.persistModel();
     }

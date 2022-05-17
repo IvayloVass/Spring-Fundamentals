@@ -37,7 +37,7 @@ public class User {
     @Column
     private LocalDateTime modified;
 
-    @ManyToMany()
+    @ManyToMany(fetch = FetchType.EAGER)
     private List<UserRole> userRole;
 
     public User() {

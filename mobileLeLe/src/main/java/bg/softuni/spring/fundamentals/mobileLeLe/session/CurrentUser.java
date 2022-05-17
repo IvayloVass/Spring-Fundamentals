@@ -70,8 +70,9 @@ public class CurrentUser {
         return roles.contains(Role.ADMIN);
     }
 
-    public void clearRoles() {
+    public CurrentUser clearRoles() {
         this.roles.clear();
+        return this;
     }
 
     public void clear() {

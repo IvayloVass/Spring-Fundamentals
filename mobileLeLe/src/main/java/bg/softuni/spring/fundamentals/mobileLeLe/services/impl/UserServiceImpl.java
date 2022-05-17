@@ -2,7 +2,10 @@ package bg.softuni.spring.fundamentals.mobileLeLe.services.impl;
 
 import bg.softuni.spring.fundamentals.mobileLeLe.models.dtos.UserLoginDto;
 import bg.softuni.spring.fundamentals.mobileLeLe.models.entities.User;
+import bg.softuni.spring.fundamentals.mobileLeLe.models.entities.UserRole;
+import bg.softuni.spring.fundamentals.mobileLeLe.models.entities.enums.Role;
 import bg.softuni.spring.fundamentals.mobileLeLe.repositories.UserRepository;
+import bg.softuni.spring.fundamentals.mobileLeLe.repositories.UserRoleRepository;
 import bg.softuni.spring.fundamentals.mobileLeLe.services.UserService;
 import bg.softuni.spring.fundamentals.mobileLeLe.session.CurrentUser;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -17,14 +21,16 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final CurrentUser currentUser;
+    private final UserRoleRepository userRoleRepository;
 
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, CurrentUser currentUser) {
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, CurrentUser currentUser, UserRoleRepository userRoleRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.currentUser = currentUser;
+        this.userRoleRepository = userRoleRepository;
     }
 
     @Override
@@ -43,6 +49,9 @@ public class UserServiceImpl implements UserService {
             currentUser.setFirstName(loggedInUser.getFirstName());
             currentUser.setLastName(loggedInUser.getLastName());
             currentUser.setLoggedIn(true);
+
+            loggedInUser.getUserRole()
+                    .forEach(r -> currentUser.addRole(r.getName()));
         }
         return successfulMatch;
     }
@@ -53,16 +62,47 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void persistUser() {
+    public void persistUserAndRole() {
+        initializeRoles();
+        initializeUsers();
+
+    }
+
+    private void initializeUsers() {
+
+        UserRole adminRole = userRoleRepository.findByName(Role.ADMIN);
+        UserRole userRole = userRoleRepository.findByName(Role.USER);
+
         if (userRepository.count() == 0) {
-            User mitak = new User("super@duper", passwordEncoder.encode("secretPass"), "Mitak", "Petrov", LocalDateTime.now());
-            User risto = new User("Risto", passwordEncoder.encode("12345"), "Risto", "Motoristo", LocalDateTime.now());
+            User mitak = new User("super@duper", passwordEncoder.encode("secretPass"),
+                    "Mitak", "Petrov", LocalDateTime.now());
+            User risto = new User("Risto", passwordEncoder.encode("12345"),
+                    "Risto", "Motoristo", LocalDateTime.now());
             mitak.setActive(true);
             risto.setActive(true);
+
+            mitak.setUserRole(List.of(adminRole, userRole));
             userRepository.save(mitak);
+
+            risto.setUserRole((List.of(userRole)));
             userRepository.save(risto);
 
         }
+
+    }
+
+    private void initializeRoles() {
+        if (userRoleRepository.count() == 0) {
+
+            UserRole admin = new UserRole();
+            admin.setName(Role.ADMIN);
+
+            UserRole regular = new UserRole();
+            regular.setName(Role.USER);
+
+            userRoleRepository.saveAll(List.of(admin, regular));
+        }
+
     }
 
 }
