@@ -44,7 +44,7 @@ public class Offer {
     @Column
     private LocalDateTime modified;
 
-    @OneToOne
+    @OneToOne                   // Depending on use case this relation might be @ManyToOne
     private Model model;
 
     @ManyToOne
