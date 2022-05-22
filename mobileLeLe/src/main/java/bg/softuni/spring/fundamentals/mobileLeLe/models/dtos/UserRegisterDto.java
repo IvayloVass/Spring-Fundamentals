@@ -1,8 +1,5 @@
 package bg.softuni.spring.fundamentals.mobileLeLe.models.dtos;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class UserRegisterDto {
 
 
@@ -14,10 +11,8 @@ public class UserRegisterDto {
 
     private String password;
 
-    private List<String> roles;
-
     public UserRegisterDto() {
-        this.roles = new ArrayList<>();
+
     }
 
     public String getFirstName() {
@@ -52,11 +47,4 @@ public class UserRegisterDto {
         this.password = password;
     }
 
-    public List<String> getRoles() {
-        return roles;
-    }
-
-    public void setRoles(List<String> roles) {
-        this.roles = roles;
-    }
 }

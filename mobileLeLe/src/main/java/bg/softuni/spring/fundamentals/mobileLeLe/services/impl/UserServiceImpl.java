@@ -1,6 +1,7 @@
 package bg.softuni.spring.fundamentals.mobileLeLe.services.impl;
 
 import bg.softuni.spring.fundamentals.mobileLeLe.models.dtos.UserLoginDto;
+import bg.softuni.spring.fundamentals.mobileLeLe.models.dtos.UserRegisterDto;
 import bg.softuni.spring.fundamentals.mobileLeLe.models.entities.User;
 import bg.softuni.spring.fundamentals.mobileLeLe.models.entities.UserRole;
 import bg.softuni.spring.fundamentals.mobileLeLe.models.entities.enums.Role;
@@ -45,10 +46,7 @@ public class UserServiceImpl implements UserService {
 
         if (successfulMatch) {
             User loggedInUser = optionalUser.get();
-            currentUser.setUsername(loggedInUser.getUserName());
-            currentUser.setFirstName(loggedInUser.getFirstName());
-            currentUser.setLastName(loggedInUser.getLastName());
-            currentUser.setLoggedIn(true);
+            login(loggedInUser);
 
             loggedInUser.getUserRole()
                     .forEach(r -> currentUser.addRole(r.getName()));
@@ -66,6 +64,32 @@ public class UserServiceImpl implements UserService {
         initializeRoles();
         initializeUsers();
 
+    }
+
+    @Override
+    public void registerAndLoginUser(UserRegisterDto userRegisterDto) {
+
+        UserRole role = userRoleRepository.findByName(Role.USER);
+
+        User userAttemptRegistration = new User();
+        userAttemptRegistration.setUserName(userRegisterDto.getFirstName());
+        userAttemptRegistration.setPassword(passwordEncoder.encode(userRegisterDto.getPassword()));
+        userAttemptRegistration.setFirstName(userRegisterDto.getFirstName());
+        userAttemptRegistration.setLastName(userRegisterDto.getLastName());
+        userAttemptRegistration.setActive(true);
+        userAttemptRegistration.setUserRole(List.of(role));
+        userAttemptRegistration.setCreated(LocalDateTime.now());
+
+        userRepository.save(userAttemptRegistration);
+        login(userAttemptRegistration);
+
+    }
+
+    private void login(User user) {
+        currentUser.setUsername(user.getUserName());
+        currentUser.setFirstName(user.getFirstName());
+        currentUser.setLastName(user.getLastName());
+        currentUser.setLoggedIn(true);
     }
 
     private void initializeUsers() {

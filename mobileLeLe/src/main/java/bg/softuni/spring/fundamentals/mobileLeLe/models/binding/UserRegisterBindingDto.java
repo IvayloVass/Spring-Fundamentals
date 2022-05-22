@@ -1,8 +1,5 @@
 package bg.softuni.spring.fundamentals.mobileLeLe.models.binding;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class UserRegisterBindingDto {
 
     private String firstName;
@@ -12,11 +9,10 @@ public class UserRegisterBindingDto {
     private String username;
 
     private String password;
+    private String confirmPassword;
 
-    private List<String> roles;
 
     public UserRegisterBindingDto() {
-        this.roles = new ArrayList<>();
     }
 
     public String getFirstName() {
@@ -51,11 +47,12 @@ public class UserRegisterBindingDto {
         this.password = password;
     }
 
-    public List<String> getRoles() {
-        return roles;
+    public String getConfirmPassword() {
+        return confirmPassword;
     }
 
-    public void setRoles(List<String> roles) {
-        this.roles = roles;
+    public void setConfirmPassword(String confirmPassword) {
+        this.confirmPassword = confirmPassword;
     }
+
 }

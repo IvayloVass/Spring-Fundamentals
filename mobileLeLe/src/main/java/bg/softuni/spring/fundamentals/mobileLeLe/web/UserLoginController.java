@@ -30,8 +30,8 @@ public class UserLoginController {
 
         UserLoginDto userLoginDto = new UserLoginDto();
         userLoginDto.setUsername(username);
-        //FixMe
         userLoginDto.setPassword(password);
+
         boolean loginSuccessful = userService.login(userLoginDto);
 
         if (loginSuccessful) {

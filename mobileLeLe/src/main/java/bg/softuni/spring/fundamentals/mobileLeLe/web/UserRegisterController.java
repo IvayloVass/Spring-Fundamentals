@@ -3,6 +3,8 @@ package bg.softuni.spring.fundamentals.mobileLeLe.web;
 
 import bg.softuni.spring.fundamentals.mobileLeLe.models.binding.UserRegisterBindingDto;
 import bg.softuni.spring.fundamentals.mobileLeLe.models.dtos.UserRegisterDto;
+import bg.softuni.spring.fundamentals.mobileLeLe.services.UserService;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,6 +14,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/users")
 public class UserRegisterController {
 
+    private final UserService userService;
+    private final ModelMapper modelMapper;
+
+    public UserRegisterController(UserService userService, ModelMapper modelMapper) {
+        this.userService = userService;
+        this.modelMapper = modelMapper;
+    }
+
     @GetMapping("/register")
     public String openRegisterPage() {
         return "auth-register";
@@ -19,13 +29,10 @@ public class UserRegisterController {
 
     @PostMapping("/register")
     public String registerUser(UserRegisterBindingDto userRegisterBindingDto) {
-        //ToDo
-        UserRegisterDto userRegisterDto = new UserRegisterDto();
-        userRegisterDto.setFirstName(userRegisterBindingDto.getFirstName());
-        userRegisterDto.setLastName(userRegisterBindingDto.getLastName());
-        userRegisterDto.setUsername(userRegisterBindingDto.getUsername());
-        userRegisterDto.setPassword(userRegisterBindingDto.getPassword());
-        userRegisterDto.setRoles(userRegisterBindingDto.getRoles());
+        //ToDo validation
+
+        UserRegisterDto userRegisterDto = modelMapper.map(userRegisterBindingDto, UserRegisterDto.class);
+        userService. registerAndLoginUser(userRegisterDto);
 
         return "redirect:/";
     }
