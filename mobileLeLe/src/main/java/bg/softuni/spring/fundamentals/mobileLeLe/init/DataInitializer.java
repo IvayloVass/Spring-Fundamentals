@@ -18,7 +18,8 @@ public class DataInitializer implements CommandLineRunner {
     private final OfferService offerService;
 
     @Autowired
-    public DataInitializer(UserService userService, BrandService brandService, ModelService modelService, OfferService offerService) {
+    public DataInitializer(UserService userService, BrandService brandService,
+                           ModelService modelService, OfferService offerService) {
         this.userService = userService;
         this.brandService = brandService;
         this.modelService = modelService;

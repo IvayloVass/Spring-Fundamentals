@@ -9,6 +9,8 @@ import bg.softuni.spring.fundamentals.mobileLeLe.repositories.UserRepository;
 import bg.softuni.spring.fundamentals.mobileLeLe.repositories.UserRoleRepository;
 import bg.softuni.spring.fundamentals.mobileLeLe.services.UserService;
 import bg.softuni.spring.fundamentals.mobileLeLe.session.CurrentUser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -25,6 +27,7 @@ public class UserServiceImpl implements UserService {
     private final UserRoleRepository userRoleRepository;
 
     private final PasswordEncoder passwordEncoder;
+    private final Logger logger = LoggerFactory.getLogger(UserService.class);
 
     @Autowired
     public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, CurrentUser currentUser, UserRoleRepository userRoleRepository) {
@@ -36,9 +39,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean login(UserLoginDto userLoginDto) {
-        Optional<User> optionalUser = userRepository.findByUserName(userLoginDto.getUsername());
+        Optional<User> optionalUser = userRepository.findByUsername(userLoginDto.getUsername());
         if (optionalUser.isEmpty()) {
             logout();
+            logger.info("The user with username: {} is not found", userLoginDto.getUsername());
             return false;
         }
         boolean successfulMatch = passwordEncoder
@@ -47,6 +51,7 @@ public class UserServiceImpl implements UserService {
         if (successfulMatch) {
             User loggedInUser = optionalUser.get();
             login(loggedInUser);
+            logger.info("The user with username: {} is logged in", userLoginDto.getUsername());
 
             loggedInUser.getUserRole()
                     .forEach(r -> currentUser.addRole(r.getName()));
@@ -72,7 +77,7 @@ public class UserServiceImpl implements UserService {
         UserRole role = userRoleRepository.findByName(Role.USER);
 
         User userAttemptRegistration = new User();
-        userAttemptRegistration.setUserName(userRegisterDto.getFirstName());
+        userAttemptRegistration.setUsername(userRegisterDto.getUsername());
         userAttemptRegistration.setPassword(passwordEncoder.encode(userRegisterDto.getPassword()));
         userAttemptRegistration.setFirstName(userRegisterDto.getFirstName());
         userAttemptRegistration.setLastName(userRegisterDto.getLastName());
@@ -85,8 +90,13 @@ public class UserServiceImpl implements UserService {
 
     }
 
+    @Override
+    public Optional<User> findByUsername(String username) {
+        return userRepository.findByUsername(username);
+    }
+
     private void login(User user) {
-        currentUser.setUsername(user.getUserName());
+        currentUser.setUsername(user.getUsername());
         currentUser.setFirstName(user.getFirstName());
         currentUser.setLastName(user.getLastName());
         currentUser.setLoggedIn(true);

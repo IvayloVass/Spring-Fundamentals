@@ -1,9 +1,16 @@
 package bg.softuni.spring.fundamentals.mobileLeLe.models.binding;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
 public class UserRegisterBindingDto {
 
+    @NotNull
+    @Size(min = 4, max = 20)
     private String firstName;
 
+    @NotNull
+    @Size(min = 4, max = 20)
     private String lastName;
 
     private String username;
@@ -32,7 +39,7 @@ public class UserRegisterBindingDto {
     }
 
     public String getUsername() {
-        return username;
+        return username != null ? username.trim() : null;
     }
 
     public void setUsername(String username) {

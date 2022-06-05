@@ -14,7 +14,7 @@ public class User {
     private Long id;
 
     @Column(name = "username", nullable = false, unique = true)
-    private String userName;
+    private String username;
 
     @Column(nullable = false, unique = true)
     private String password;
@@ -38,6 +38,7 @@ public class User {
     private LocalDateTime modified;
 
     @ManyToMany(fetch = FetchType.EAGER)
+    @Column(nullable = false)
     private List<UserRole> userRole;
 
     public User() {
@@ -46,7 +47,7 @@ public class User {
 
     public User(String userName, String password, String firstName, String lastName, LocalDateTime created) {
         this();
-        this.userName = userName;
+        this.username = userName;
         this.password = password;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -61,12 +62,12 @@ public class User {
         this.id = id;
     }
 
-    public String getUserName() {
-        return userName;
+    public String getUsername() {
+        return username;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getPassword() {

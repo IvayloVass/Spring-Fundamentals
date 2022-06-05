@@ -7,6 +7,8 @@ import java.math.BigDecimal;
 
 public class OfferSummaryView {
 
+    private Long id;
+
     private String description;
 
     private Engine engine;
@@ -28,6 +30,14 @@ public class OfferSummaryView {
 
     public String getDescription() {
         return description;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public void setDescription(String description) {
