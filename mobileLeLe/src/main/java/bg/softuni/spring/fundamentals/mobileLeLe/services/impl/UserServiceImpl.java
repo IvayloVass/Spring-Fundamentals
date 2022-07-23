@@ -1,6 +1,5 @@
 package bg.softuni.spring.fundamentals.mobileLeLe.services.impl;
 
-import bg.softuni.spring.fundamentals.mobileLeLe.models.dtos.UserLoginDto;
 import bg.softuni.spring.fundamentals.mobileLeLe.models.dtos.UserRegisterDto;
 import bg.softuni.spring.fundamentals.mobileLeLe.models.entities.User;
 import bg.softuni.spring.fundamentals.mobileLeLe.models.entities.UserRole;
@@ -8,10 +7,14 @@ import bg.softuni.spring.fundamentals.mobileLeLe.models.entities.enums.Role;
 import bg.softuni.spring.fundamentals.mobileLeLe.repositories.UserRepository;
 import bg.softuni.spring.fundamentals.mobileLeLe.repositories.UserRoleRepository;
 import bg.softuni.spring.fundamentals.mobileLeLe.services.UserService;
-import bg.softuni.spring.fundamentals.mobileLeLe.session.CurrentUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -23,45 +26,20 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-    private final CurrentUser currentUser;
     private final UserRoleRepository userRoleRepository;
+    private final UserDetailsService userDetailsService;
 
     private final PasswordEncoder passwordEncoder;
     private final Logger logger = LoggerFactory.getLogger(UserService.class);
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, CurrentUser currentUser, UserRoleRepository userRoleRepository) {
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder,
+                           UserRoleRepository userRoleRepository,
+                           UserDetailsService userDetailsService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
-        this.currentUser = currentUser;
         this.userRoleRepository = userRoleRepository;
-    }
-
-    @Override
-    public boolean login(UserLoginDto userLoginDto) {
-        Optional<User> optionalUser = userRepository.findByUsername(userLoginDto.getUsername());
-        if (optionalUser.isEmpty()) {
-            logout();
-            logger.info("The user with username: {} is not found", userLoginDto.getUsername());
-            return false;
-        }
-        boolean successfulMatch = passwordEncoder
-                .matches(userLoginDto.getPassword(), optionalUser.get().getPassword());
-
-        if (successfulMatch) {
-            User loggedInUser = optionalUser.get();
-            login(loggedInUser);
-            logger.info("The user with username: {} is logged in", userLoginDto.getUsername());
-
-            loggedInUser.getUserRole()
-                    .forEach(r -> currentUser.addRole(r.getName()));
-        }
-        return successfulMatch;
-    }
-
-    @Override
-    public void logout() {
-        currentUser.clear();
+        this.userDetailsService = userDetailsService;
     }
 
     @Override
@@ -76,30 +54,34 @@ public class UserServiceImpl implements UserService {
 
         UserRole role = userRoleRepository.findByName(Role.USER);
 
-        User userAttemptRegistration = new User();
-        userAttemptRegistration.setUsername(userRegisterDto.getUsername());
-        userAttemptRegistration.setPassword(passwordEncoder.encode(userRegisterDto.getPassword()));
-        userAttemptRegistration.setFirstName(userRegisterDto.getFirstName());
-        userAttemptRegistration.setLastName(userRegisterDto.getLastName());
-        userAttemptRegistration.setActive(true);
-        userAttemptRegistration.setUserRole(List.of(role));
-        userAttemptRegistration.setCreated(LocalDateTime.now());
+        User newUser = new User();
+        newUser.setUsername(userRegisterDto.getUsername());
+        newUser.setPassword(passwordEncoder.encode(userRegisterDto.getPassword()));
+        newUser.setFirstName(userRegisterDto.getFirstName());
+        newUser.setLastName(userRegisterDto.getLastName());
+        newUser.setActive(true);
+        newUser.setUserRole(List.of(role));
+        newUser.setCreated(LocalDateTime.now());
 
-        userRepository.save(userAttemptRegistration);
-        login(userAttemptRegistration);
+        userRepository.save(newUser);
+        login(newUser);
+
+    }
+
+    private void login(User newUser) {
+        UserDetails userDetails = userDetailsService.loadUserByUsername(newUser.getUsername());
+        Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, userDetails.getPassword(),
+                userDetails.getAuthorities());
+
+        SecurityContextHolder
+                .getContext()
+                .setAuthentication(authentication);
 
     }
 
     @Override
     public Optional<User> findByUsername(String username) {
         return userRepository.findByUsername(username);
-    }
-
-    private void login(User user) {
-        currentUser.setUsername(user.getUsername());
-        currentUser.setFirstName(user.getFirstName());
-        currentUser.setLastName(user.getLastName());
-        currentUser.setLoggedIn(true);
     }
 
     private void initializeUsers() {

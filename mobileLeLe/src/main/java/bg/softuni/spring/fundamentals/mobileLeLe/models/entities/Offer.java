@@ -26,7 +26,7 @@ public class Offer {
     private String imageUrl;
 
     @Column(nullable = false)
-    private int mileage;
+    private Integer mileage;
 
     @Column(nullable = false)
     private BigDecimal price;
@@ -44,7 +44,7 @@ public class Offer {
     @Column
     private LocalDateTime modified;
 
-    @OneToOne                   // Depending on use case this relation might be @ManyToOne
+    @OneToOne
     private Model model;
 
     @ManyToOne
@@ -94,11 +94,11 @@ public class Offer {
         this.imageUrl = imageUrl;
     }
 
-    public int getMileage() {
+    public Integer getMileage() {
         return mileage;
     }
 
-    public void setMileage(int mileage) {
+    public void setMileage(Integer mileage) {
         this.mileage = mileage;
     }
 

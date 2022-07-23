@@ -1,23 +1,28 @@
 package bg.softuni.spring.fundamentals.mobileLeLe.models.binding;
 
-import javax.validation.constraints.NotNull;
+import bg.softuni.spring.fundamentals.mobileLeLe.models.validation.UniqueUsername;
+
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
 
 public class UserRegisterBindingDto {
 
-    @NotNull
+    @NotEmpty(message = "First name should be provided")
     @Size(min = 4, max = 20)
     private String firstName;
 
-    @NotNull
+    @NotEmpty(message = "Last name should be provided")
     @Size(min = 4, max = 20)
     private String lastName;
 
+    @NotEmpty(message = "Username should be provided")
+    @Size(min = 4, max = 20)
+    @UniqueUsername
     private String username;
 
+    @NotEmpty(message = "Password should be provided")
+    @Size(min = 5, max = 20)
     private String password;
-    private String confirmPassword;
-
 
     public UserRegisterBindingDto() {
     }
@@ -54,12 +59,5 @@ public class UserRegisterBindingDto {
         this.password = password;
     }
 
-    public String getConfirmPassword() {
-        return confirmPassword;
-    }
-
-    public void setConfirmPassword(String confirmPassword) {
-        this.confirmPassword = confirmPassword;
-    }
 
 }

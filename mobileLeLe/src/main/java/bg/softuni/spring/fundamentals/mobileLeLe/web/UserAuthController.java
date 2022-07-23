@@ -3,7 +3,6 @@ package bg.softuni.spring.fundamentals.mobileLeLe.web;
 
 import bg.softuni.spring.fundamentals.mobileLeLe.models.binding.UserRegisterBindingDto;
 import bg.softuni.spring.fundamentals.mobileLeLe.models.dtos.UserRegisterDto;
-import bg.softuni.spring.fundamentals.mobileLeLe.models.entities.User;
 import bg.softuni.spring.fundamentals.mobileLeLe.services.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Controller;
@@ -15,18 +14,35 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
-import java.util.Optional;
 
 @Controller
 @RequestMapping("/users")
-public class UserRegisterController {
+public class UserAuthController {
 
     private final UserService userService;
     private final ModelMapper modelMapper;
 
-    public UserRegisterController(UserService userService, ModelMapper modelMapper) {
+    public UserAuthController(UserService userService, ModelMapper modelMapper) {
         this.userService = userService;
         this.modelMapper = modelMapper;
+    }
+
+    @GetMapping("/login")
+    public String login() {
+        return "auth-login";
+    }
+
+    @PostMapping("/login-error")
+    public String onFailedLogin(@ModelAttribute("username") String username,
+                                RedirectAttributes redirectAttributes) {
+        redirectAttributes.addFlashAttribute("username", username)
+                .addFlashAttribute("bad_credentials", true);
+        return "redirect:/users/login";
+    }
+
+    @PostMapping("/logout")
+    public String logout() {
+        return "redirect:/";
     }
 
     @ModelAttribute("userRegisterBindingDto")
@@ -50,14 +66,15 @@ public class UserRegisterController {
                     bindingResult);
             return "redirect:/users/register";
         }
+/**
+ Optional<User> registeredUser = userService.findByUsername(userRegisterBindingDto.getUsername());
 
-        Optional<User> registeredUser = userService.findByUsername(userRegisterBindingDto.getUsername());
-
-        if (registeredUser.isPresent()) {
-            redirectAttributes.addFlashAttribute("userRegisterBindingDto", userRegisterBindingDto);
-            redirectAttributes.addFlashAttribute("isOccupied", true);
-            return "redirect:/users/register";
-        }
+ if (registeredUser.isPresent()) {
+ redirectAttributes.addFlashAttribute("userRegisterBindingDto", userRegisterBindingDto);
+ redirectAttributes.addFlashAttribute("isOccupied", true);
+ return "redirect:/users/register";
+ }
+ **/
         UserRegisterDto userRegisterDto = modelMapper.map(userRegisterBindingDto, UserRegisterDto.class);
         userService.registerAndLoginUser(userRegisterDto);
 

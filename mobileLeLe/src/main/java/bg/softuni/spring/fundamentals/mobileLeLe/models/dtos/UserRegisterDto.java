@@ -2,7 +2,6 @@ package bg.softuni.spring.fundamentals.mobileLeLe.models.dtos;
 
 public class UserRegisterDto {
 
-
     private String firstName;
 
     private String lastName;

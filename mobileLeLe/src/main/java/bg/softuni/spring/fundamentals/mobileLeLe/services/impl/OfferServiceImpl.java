@@ -1,8 +1,12 @@
 package bg.softuni.spring.fundamentals.mobileLeLe.services.impl;
 
+import bg.softuni.spring.fundamentals.mobileLeLe.models.binding.AddOfferDto;
+import bg.softuni.spring.fundamentals.mobileLeLe.models.entities.Model;
 import bg.softuni.spring.fundamentals.mobileLeLe.models.entities.Offer;
+import bg.softuni.spring.fundamentals.mobileLeLe.models.entities.User;
 import bg.softuni.spring.fundamentals.mobileLeLe.models.entities.enums.Engine;
 import bg.softuni.spring.fundamentals.mobileLeLe.models.entities.enums.Transmission;
+import bg.softuni.spring.fundamentals.mobileLeLe.models.views.OfferDetailsView;
 import bg.softuni.spring.fundamentals.mobileLeLe.models.views.OfferSummaryView;
 import bg.softuni.spring.fundamentals.mobileLeLe.repositories.ModelRepository;
 import bg.softuni.spring.fundamentals.mobileLeLe.repositories.OfferRepository;
@@ -10,11 +14,13 @@ import bg.softuni.spring.fundamentals.mobileLeLe.repositories.UserRepository;
 import bg.softuni.spring.fundamentals.mobileLeLe.services.OfferService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,7 +33,8 @@ public class OfferServiceImpl implements OfferService {
     private final ModelMapper mapper;
 
     @Autowired
-    public OfferServiceImpl(OfferRepository offerRepository, ModelRepository modelRepository, UserRepository userRepository, ModelMapper mapper) {
+    public OfferServiceImpl(OfferRepository offerRepository, ModelRepository modelRepository,
+                            UserRepository userRepository, ModelMapper mapper) {
         this.offerRepository = offerRepository;
         this.modelRepository = modelRepository;
         this.userRepository = userRepository;
@@ -58,6 +65,34 @@ public class OfferServiceImpl implements OfferService {
                 .collect(Collectors.toList());
 
     }
+
+    @Override
+    public OfferDetailsView findById(Long id) {
+        Optional<Offer> offer = offerRepository.findById(id);
+        return mapper.map(offer, OfferDetailsView.class);
+    }
+
+    @Override
+    public void deleteOffer(Long id) {
+        offerRepository.deleteById(id);
+    }
+
+
+    @Override
+    public void addOffer(AddOfferDto addOfferDto, UserDetails userDetails) {
+
+        Offer offer = mapper.map(addOfferDto, Offer.class);
+
+        User seller = userRepository.findByUsername(userDetails.getUsername()).orElseThrow();
+        Model model = modelRepository.findById(addOfferDto.getModelId()).orElseThrow();
+        offer.setModel(model);
+
+        offer.setModel(model);
+        offer.setSeller(seller);
+        offer.setCreated(LocalDateTime.now());
+        offerRepository.save(offer);
+    }
+
 
     private OfferSummaryView map(Offer offer) {
         OfferSummaryView offerSummaryView = this.mapper.map(offer, OfferSummaryView.class);

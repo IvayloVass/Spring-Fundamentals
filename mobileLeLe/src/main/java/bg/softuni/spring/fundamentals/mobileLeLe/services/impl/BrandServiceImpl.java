@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class BrandServiceImpl implements BrandService {
@@ -26,5 +27,10 @@ public class BrandServiceImpl implements BrandService {
             brandRepository.save(mazda);
         }
 
+    }
+
+    @Override
+    public List<Brand> getAllBrands() {
+        return brandRepository.findAll();
     }
 }
